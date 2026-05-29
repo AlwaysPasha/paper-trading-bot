@@ -1,13 +1,26 @@
 import yfinance as yf
 import pandas as pd
 from datetime import datetime
-import os
+
+STARTING_CASH = 100000
 
 stocks = ["TCS.NS", "INFY.NS", "RELIANCE.NS"]
 
-trades = []
+portfolio_file = "portfolio.csv"
+history_file = "trade_history.csv"
+
+try:
+    portfolio = pd.read_csv(portfolio_file)
+except:
+    portfolio = pd.DataFrame(columns=["stock", "shares", "buy_price"])
+
+try:
+    history = pd.read_csv(history_file)
+except:
+    history = pd.DataFrame(columns=["timestamp","stock","action","price","shares"])
 
 for symbol in stocks:
+
     data = yf.Ticker(symbol).history(period="3mo")
 
     data["MA5"] = data["Close"].rolling(5).mean()
@@ -15,24 +28,42 @@ for symbol in stocks:
 
     latest = data.iloc[-1]
 
+    price = round(latest["Close"], 2)
+
     signal = "BUY" if latest["MA5"] > latest["MA20"] else "SELL"
 
-    trades.append({
-        "timestamp": datetime.now(),
-        "stock": symbol,
-        "price": round(latest["Close"], 2),
-        "MA5": round(latest["MA5"], 2),
-        "MA20": round(latest["MA20"], 2),
-        "signal": signal
-    })
+    holding = portfolio[portfolio["stock"] == symbol]
 
-df = pd.DataFrame(trades)
+    if signal == "BUY" and holding.empty:
 
-print(df)
+        portfolio.loc[len(portfolio)] = [symbol, 1, price]
 
-file_name = "paper_trades.csv"
+        history.loc[len(history)] = [
+            datetime.now(),
+            symbol,
+            "BUY",
+            price,
+            1
+        ]
 
-if os.path.exists(file_name):
-    df.to_csv(file_name, mode="a", header=False, index=False)
-else:
-    df.to_csv(file_name, index=False)
+        print(f"BUY {symbol} @ ₹{price}")
+
+    elif signal == "SELL" and not holding.empty:
+
+        history.loc[len(history)] = [
+            datetime.now(),
+            symbol,
+            "SELL",
+            price,
+            int(holding.iloc[0]["shares"])
+        ]
+
+        portfolio = portfolio[portfolio["stock"] != symbol]
+
+        print(f"SELL {symbol} @ ₹{price}")
+
+portfolio.to_csv(portfolio_file, index=False)
+history.to_csv(history_file, index=False)
+
+print("\nCurrent Portfolio")
+print(portfolio)
