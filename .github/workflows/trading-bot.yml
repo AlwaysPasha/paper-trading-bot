@@ -1,7 +1,23 @@
-import requests
+name: Paper Trading Bot
 
-BOT_TOKEN = "YOUR_TOKEN"
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
 
-r = requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getMe")
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
 
-print(r.text)
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install packages
+        run: pip install yfinance pandas requests
+
+      - name: Run bot
+        run: python bot.py
