@@ -66,10 +66,7 @@ for symbol in stocks:
         ]
 
         print(f"BUY {symbol} @ ₹{price}")
-        send_telegram(
-            f"🔴 SELL {symbol}\nPrice: ₹{price}\nCash Balance: ₹{cash:.2f}"
-        )
-
+       
         send_telegram(
             f"🚀 BUY {symbol}\nPrice: ₹{price}\nCash Balance: ₹{cash:.2f}"
         )
@@ -88,7 +85,11 @@ for symbol in stocks:
 
         portfolio = portfolio[portfolio["stock"] != symbol]
 
-        print(f"SELL {symbol} @ ₹{price}")
+print(f"SELL {symbol} @ ₹{price}")
+send_telegram(
+    f"🔴 SELL {symbol}\nPrice: ₹{price}\nCash Balance: ₹{cash:.2f}"
+)
+
 
 portfolio.to_csv(portfolio_file, index=False)
 history.to_csv(history_file, index=False)
@@ -115,3 +116,6 @@ print(f"Profit/Loss: ₹{profit_loss:.2f}")
 
 print("\nCurrent Portfolio")
 print(portfolio)
+send_telegram(
+    f"✅ Bot Ran Successfully\nPortfolio Value: ₹{total_value:.2f}\nProfit/Loss: ₹{profit_loss:.2f}"
+)
