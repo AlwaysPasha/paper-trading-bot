@@ -9,7 +9,7 @@ portfolio_file = "portfolio.csv"
 history_file = "trade_history.csv"
 cash_file = "cash.txt"
 
-BOT_TOKEN = "8316233634:AAGHkYtIvWtyBRRxG9UeOcJ4FzjZvQdNrFI
+BOT_TOKEN = "8316233634:AAGHkYtIvWtyBRRxG9UeOcJ4FzjZvQdNrFI"
 CHAT_ID = "5311676923"
 
 def send_telegram(message):
